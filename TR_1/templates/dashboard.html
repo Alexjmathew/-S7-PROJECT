@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Exercise Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            animation: fadeIn 2s ease-in-out;
+        }
+        .nav {
+            margin-bottom: 20px;
+        }
+        .nav a {
+            margin: 0 10px;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .nav a:hover {
+            color: #0056b3;
+        }
+        .form-container {
+            max-width: 400px;
+            width: 100%;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: slideIn 1s ease-in-out;
+        }
+        .form-container select, .form-container input {
+            font-size: 1em;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .form-container button {
+            font-size: 1em;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+        .form-container button:hover {
+            background: #0056b3;
+        }
+        .chart-container {
+            max-width: 600px;
+            width: 100%;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome, {{ user.username }}!</h1>
+        <div class="nav">
+            <a href="{{ url_for('profile') }}">Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+            {% if 'admin' in user.roles %}
+                <a href="{{ url_for('admin') }}">Admin</a>
+            {% endif %}
+        </div>
+        <div class="form-container">
+            <h3>Start New Exercise</h3>
+            <form id="exerciseForm">
+                <select name="exercise" required>
+                    {% for name in exercises.keys() %}
+                        <option value="{{ name }}">{{ name.replace('_', ' ').title() }}</option>
+                    {% endfor %}
+                </select>
+                <input type="number" name="target" placeholder="Target Reps" value="10" min="5" max="20" required>
+                <button type="submit">Start Training</button>
+            </form>
+        </div>
+        <div class="chart-container">
+            <h3>Exercise History</h3>
+            <canvas id="sessionChart"></canvas>
+        </div>
+    </div>
+    <script>
+        // Form submission
+        document.getElementById('exerciseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const response = await fetch('/training', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            if (result.success) {
+                window.location.href = '/training';
+            } else {
+                alert(result.error);
+            }
+        });
+
+        // Session chart
+        const ctx = document.getElementById('sessionChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ sessions.dates | tojson }},
+                datasets: [{
+                    label: 'Reps Completed',
+                    data: {{ sessions.counts | tojson }},
+                    borderColor: '#007bff',
+                    fill: false
+                }, {
+                    label: 'Duration (s)',
+                    data: {{ sessions.durations | tojson }},
+                    borderColor: '#28a745',
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

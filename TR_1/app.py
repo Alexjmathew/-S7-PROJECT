@@ -156,7 +156,8 @@ def save_session_data():
             "count": count,
             "total_time": total_time,
             "average_speed": total_time / count if count > 0 else 0,
-            "exercise": exercise["name"]
+            "exercise": exercise["name"],
+            "fatigue_data": []  # Placeholder for fatigue data
         }
         
         user_ref = db.collection('users').document(current_user['email'])
@@ -221,7 +222,7 @@ def login():
             user_ref = db.collection('users').document(email)
             user_data = user_ref.get().to_dict()
             
-            if user_data and user_data.get('password') == password:  # Note: In production, use hashed passwords
+            if user_data and user_data.get('password') == password:
                 session['email'] = email
                 session['username'] = user_data['username']
                 global current_user
@@ -260,7 +261,7 @@ def register():
             
             user_data = {
                 'email': email,
-                'password': password,  # Note: In production, hash the password
+                'password': password,
                 'username': username,
                 'roles': ['user'],
                 'sessions': [],
@@ -448,7 +449,8 @@ def video_feed():
                                 'time': current_time,
                                 'speed': rep_speed,
                                 'rom': rep_rom,
-                                'quality': quality_score
+                                'quality': quality_score,
+                                'fatigue_prob': float(fatigue_prob)
                             })
                             
                             # RL Adaptive Training
@@ -579,6 +581,66 @@ def exercise_history():
     except Exception as e:
         logger.error(f"Exercise history error: {e}")
         return jsonify({'success': False, 'error': 'An error occurred'})
+
+@app.route('/fatigue_safety')
+@login_required
+def fatigue_safety():
+    try:
+        user_ref = db.collection('users').document(session['email'])
+        user_data = user_ref.get().to_dict()
+        sessions = user_data.get('sessions', [])
+        
+        # Aggregate fatigue data
+        fatigue_data = []
+        for session in sessions:
+            if 'fatigue_data' in session and session['fatigue_data']:
+                for data_point in session['fatigue_data']:
+                    fatigue_data.append({
+                        'date': session['date'],
+                        'exercise': session['exercise'],
+                        'fatigue_prob': data_point['fatigue_prob']
+                    })
+        
+        safety_tips = [
+            "Take breaks when fatigue probability exceeds 0.7.",
+            "Ensure proper hydration during workouts.",
+            "Maintain a stable surface for balance during exercises.",
+            "Stop immediately if you feel dizzy or unwell."
+        ]
+        
+        return render_template('fatigue_safety.html', 
+                             user=user_data,
+                             fatigue_data=fatigue_data,
+                             safety_tips=safety_tips)
+    except Exception as e:
+        logger.error(f"Fatigue safety error: {e}")
+        return render_template('error.html', message="An error occurred")
+
+@app.route('/quality_dashboard')
+@login_required
+def quality_dashboard():
+    try:
+        user_ref = db.collection('users').document(session['email'])
+        user_data = user_ref.get().to_dict()
+        sessions = user_data.get('sessions', [])
+        
+        # Aggregate quality data
+        quality_data = []
+        for session in sessions:
+            if 'fatigue_data' in session and session['fatigue_data']:
+                for data_point in session['fatigue_data']:
+                    quality_data.append({
+                        'date': session['date'],
+                        'exercise': session['exercise'],
+                        'quality_score': data_point['quality']
+                    })
+        
+        return render_template('quality_dashboard.html', 
+                             user=user_data,
+                             quality_data=quality_data)
+    except Exception as e:
+        logger.error(f"Quality dashboard error: {e}")
+        return render_template('error.html', message="An error occurred")
 
 @app.route('/logout')
 def logout():

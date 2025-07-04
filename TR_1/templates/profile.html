@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Exercise Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            animation: fadeIn 2s ease-in-out;
+        }
+        .form-container {
+            max-width: 400px;
+            width: 100%;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: slideIn 1s ease-in-out;
+        }
+        .form-container input {
+            font-size: 1em;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .form-container input:disabled {
+            background: #f4f4f9;
+        }
+        .form-container button {
+            font-size: 1em;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+        .form-container button:hover {
+            background: #0056b3;
+        }
+        .error {
+            background: #ffeb3b;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        .btn-container {
+            margin-top: 20px;
+        }
+        .btn-container a {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+        .btn-container a:hover {
+            background: #218838;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Profile</h1>
+        <div class="form-container">
+            {% if error %}
+                <div class="error">{{ error }}</div>
+            {% endif %}
+            <form method="POST" action="{{ url_for('profile') }}">
+                <input type="text" value="{{ user.username }}" disabled>
+                <input type="email" value="{{ user.email }}" disabled>
+                <input type="number" name="age" placeholder="Age" value="{{ user.profile.age or '' }}">
+                <input type="number" name="height" placeholder="Height (cm)" value="{{ user.profile.height or '' }}">
+                <input type="number" name="weight" placeholder="Weight (kg)" value="{{ user.profile.weight or '' }}">
+                <button type="submit">Update Profile</button>
+            </form>
+        </div>
+        <div class="btn-container">
+            <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+</body>
+</html>

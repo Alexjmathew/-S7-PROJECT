@@ -1,50 +1,114 @@
-## -S7-PROJECT
-##AI-Powered Physiotherapy Assistance System for Rehabilitation
-Introduction
-The AI-Powered Physiotherapy Assistance System for Rehabilitation is an innovative application designed to assist patients in performing physiotherapy exercises correctly and effectively. By leveraging Artificial Intelligence (AI), Computer Vision, and Machine Learning (ML), the system provides real-time feedback, tracks progress, and personalizes rehabilitation programs. This technology ensures that patients perform exercises with proper form, reducing the risk of injury and improving recovery outcomes.
-Key Features of the System
-1. AI-Based Real-Time Movement Tracking
-Using MediaPipe Pose Detection, the system tracks a patient’s movements through a camera. It identifies key body joints (such as knees, shoulders, and spine) and measures angles between them to assess posture and movement accuracy. This helps in detecting incorrect form and preventing harmful movements.
-2. Automated Repetition Counting & Exercise Validation
-Instead of manually counting repetitions, the system uses AI algorithms to track exercise sets and reps accurately. It validates whether the patient is performing movements within the correct range of motion (ROM) and alerts them if deviations occur.
-3. Personalized Rehabilitation with Reinforcement Learning (RL)
-The system adapts to each patient’s recovery progress using Reinforcement Learning (RL). Based on performance data, it adjusts:
+# AI-Powered Physiotherapy Assistance System for Rehabilitation
 
-Exercise difficulty (increasing or decreasing intensity)
-Recommended repetitions
-Rest periods between sets
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Key Features](#key-features)
+3. [System Requirements](#system-requirements)
+4. [Installation](#installation)
+5. [Usage](#usage)
+6. [Data Storage](#data-storage)
+7. [Contact](#contact)
 
-This ensures a customized rehabilitation plan that evolves with the patient’s improvement.
-4. Fatigue Detection & Safety Alerts
-A neural network-based fatigue detection system monitors:
+## Introduction <a name="introduction"></a>
+The AI-Powered Physiotherapy Assistance System is an innovative solution designed to enhance rehabilitation through artificial intelligence and computer vision. This system provides real-time feedback on exercise form, tracks progress, and personalizes rehabilitation programs to optimize recovery outcomes while reducing injury risks.
 
-Movement speed degradation
-Tremors in motion
-Form breakdowns
+## Key Features <a name="key-features"></a>
 
-If fatigue is detected, the system suggests rest or modifies exercise difficulty to prevent strain.
-5. Quality Scoring for Each Repetition
-Using K-Means Clustering, the system scores each repetition based on:
+### 1. AI-Based Real-Time Movement Tracking
+- Utilizes MediaPipe Pose Detection for precise joint tracking
+- Monitors key body joints (knees, shoulders, spine)
+- Measures angles between joints to assess posture accuracy
 
-Range of Motion (ROM) accuracy
-Movement smoothness
-Form consistency
+### 2. Automated Repetition Counting & Exercise Validation
+- AI-powered rep counting eliminates manual tracking
+- Validates range of motion (ROM) compliance
+- Alerts for movement deviations
 
-Patients receive instant feedback, helping them correct mistakes in real time.
-6. Cloud-Based Progress Tracking & Reporting
-All session data is stored in Firebase, allowing:
+### 3. Personalized Rehabilitation with RL
+- Reinforcement Learning adapts exercises based on:
+  - Performance progress
+  - Recovery stage
+  - Individual capabilities
+- Dynamically adjusts:
+  - Exercise difficulty
+  - Repetition counts
+  - Rest periods
 
-Therapists to monitor patient progress remotely
-Generating automated recovery reports
-Comparing historical performance for better insights
+### 4. Fatigue Detection & Safety
+- Neural network monitors:
+  - Movement speed degradation
+  - Motion tremors
+  - Form breakdowns
+- Provides safety recommendations
 
-7. Role-Based Access Control (RBAC)
-The system supports multiple user roles:
+### 5. Quality Scoring System
+- K-Means Clustering evaluates each rep on:
+  - ROM accuracy
+  - Movement smoothness
+  - Form consistency
+- Real-time feedback and corrections
 
-Patients (perform exercises and track progress)
-Physiotherapists (monitor and adjust treatment plans)
-Doctors (review long-term recovery trends)
-Administrators (manage system settings)
+### 6. Cloud-Based Progress Tracking
+- Firebase integration for data storage
+- Remote monitoring capabilities
+- Automated report generation
+- Historical performance comparison
 
-Conclusion
-The AI-Powered Physiotherapy Assistance System for Rehabilitation enhances traditional physiotherapy by integrating AI, ML, and real-time feedback. It ensures exercises are performed correctly, reduces injury risks, and personalizes rehabilitation for faster recovery. By automating progress tracking and providing data-driven insights, it bridges the gap between clinical supervision and at-home recovery, making physiotherapy more accessible and effective.
+
+
+## Installation <a name="installation"></a>
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/your-repo/ai-physio-system.git
+   cd ai-physio-system
+   ```
+
+2. Create and activate virtual environment:
+   ```
+   python -m venv venv
+   source venv/bin/activate  # Linux/Mac
+   venv\Scripts\activate  # Windows
+   ```
+
+3. Install dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
+
+4. Configure Firebase:
+   - Create Firebase project
+   - Add configuration details in `config/firebase_config.json`
+
+5. Run the system:
+   ```
+   python main.py
+   ```
+
+## Usage <a name="usage"></a>
+
+### Patient Interface
+1. Select your prescribed exercise program
+2. Position yourself within camera view
+3. Follow on-screen instructions
+4. Receive real-time form feedback
+5. View post-session performance summary
+
+### Therapist Interface
+1. Log in to dashboard
+2. View patient progress reports
+3. Adjust treatment plans remotely
+4. Set exercise parameters
+5. Monitor compliance statistics
+
+## Data Storage <a name="data-storage"></a>
+All session data is securely stored in Firebase with:
+- Exercise performance metrics
+- Form analysis data
+- Progress trends
+- Therapist notes
+
+## Contact <a name="contact"></a>
+For questions or support, please contact:  
+alexjmt1@gmail.com  
++91 9074723677

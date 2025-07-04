@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quality Scoring Dashboard - Exercise Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            animation: fadeIn 2s ease-in-out;
+        }
+        .nav {
+            margin-bottom: 20px;
+        }
+        .nav a {
+            margin: 0 10px;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .nav a:hov
+er {
+            color: #0056b3;
+        }
+        .quality-container {
+            max-width: 800px;
+            width: 100%;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: slideIn 1s ease-in-out;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background: #007bff;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .btn-container {
+            margin-top: 20px;
+        }
+        .btn-container a {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+        .btn-container a:hover {
+            background: #218838;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Quality Scoring Dashboard</h1>
+        <div class="nav">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('profile') }}">Profile</a>
+            <a href="{{ url_for('fatigue_safety') }}">Fatigue & Safety</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+            {% if 'admin' in user.roles %}
+                <a href="{{ url_for('admin') }}">Admin</a>
+            {% endif %}
+        </div>
+        <div class="quality-container">
+            <h3>Exercise Quality Scores</h3>
+            <canvas id="qualityChart"></canvas>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Exercise</th>
+                        <th>Quality Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in quality_data %}
+                        <tr>
+                            <td>{{ data.date }}</td>
+                            <td>{{ data.exercise }}</td>
+                            <td>{{ data.quality_score | round(2) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="btn-container">
+            <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+        </div>
+    </div>
+    <script>
+        const ctx = document.getElementById('qualityChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ quality_data | map(attribute='date') | list | tojson }},
+                datasets: [{
+                    label: 'Quality Score',
+                    data: {{ quality_data | map(attribute='quality_score') | list | tojson }},
+                    backgroundColor: '#007bff'
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

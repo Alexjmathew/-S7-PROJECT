@@ -1,0 +1,28 @@
+TR_1/
+│
+├── static/
+│   ├── css/
+│   │   └── style.css           # Combined all CSS
+│   │
+│   ├── js/
+│   │   └── script.js           # Combined all JavaScript
+│   │
+│   └── images/                 # Same as before
+│       ├── logo.png
+│       ├── default-avatar.jpg
+│       └── exercise-demos/
+│           ├── knee_raises.jpg
+│           └── squats.jpg
+│
+├── templates/
+│   ├── base.html               # Single base template
+│   ├── index.html              # Main page
+│   ├── login.html
+│   ├── register.html
+│   ├── training.html
+│   └── admin.html
+│
+├── app.py                      # All backend code here
+├── firebase.json
+├── requirements.txt
+└── README.md

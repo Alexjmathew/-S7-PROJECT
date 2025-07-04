@@ -60,8 +60,8 @@ The AI-Powered Physiotherapy Assistance System is an innovative solution designe
 
 1. Clone the repository:
    ```
-   git clone https://github.com/your-repo/ai-physio-system.git
-   cd ai-physio-system
+   git clone https://github.com/Alexjmathew/-S7-PROJECT.git
+   cd TR_1
    ```
 
 2. Create and activate virtual environment:
@@ -82,7 +82,7 @@ The AI-Powered Physiotherapy Assistance System is an innovative solution designe
 
 5. Run the system:
    ```
-   python main.py
+   python app.py
    ```
 
 ## Usage <a name="usage"></a>

@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Quality Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Exercise Quality Metrics</h4>
+    </div>
+    <div class="card-body">
+        <canvas id="qualityChart" height="300"></canvas>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Quality Insights</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Average Quality by Exercise</h5>
+                <ul class="list-group">
+                    {% set exercises = quality_data|map(attribute='exercise')|unique|list %}
+                    {% for ex in exercises %}
+                    {% set scores = quality_data|selectattr('exercise', 'equalto', ex)|map(attribute='quality_score')|list %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ ex|title }}
+                        <span class="badge bg-primary rounded-pill">{{ (scores|sum / scores|length)|round(1) }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h5>Quality Trends</h5>
+                <p>Your overall exercise quality is 
+                    {% set last_5 = quality_data[-5:]|map(attribute='quality_score')|list %}
+                    {% if last_5|length >= 2 %}
+                        {% if last_5[-1] > last_5[0] %}
+                        <span class="text-success">improving</span>
+                        {% else %}
+                        <span class="text-warning">declining</span>
+                        {% endif %}
+                    {% else %}
+                        <span>stable</span>
+                    {% endif %}
+                    over your last 5 sessions.
+                </p>
+                <div class="progress mb-3" style="height: 30px;">
+                    <div class="progress-bar bg-success" role="progressbar" 
+                         style="width: {{ (quality_data|map(attribute='quality_score')|list|max }}%">
+                        Best: {{ (quality_data|map(attribute='quality_score')|list|max }}%
+                    </div>
+                </div>
+                <div class="progress" style="height: 30px;">
+                    <div class="progress-bar bg-info" role="progressbar" 
+                         style="width: {{ (quality_data|map(attribute='quality_score')|list|min }}%">
+                        Worst: {{ (quality_data|map(attribute='quality_score')|list|min }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Quality Chart
+const qualityCtx = document.getElementById('qualityChart').getContext('2d');
+const qualityChart = new Chart(qualityCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ quality_data|map(attribute='date')|list|tojson }},
+        datasets: [{
+            label: 'Quality Score',
+            data: {{ quality_data|map(attribute='quality_score')|list|tojson }},
+            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    afterLabel: function(context) {
+                        return `Exercise: ${ {{ quality_data|map(attribute='exercise')|list|tojson }[context.dataIndex] }`;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: function(value) {
+                        return value + '%';
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

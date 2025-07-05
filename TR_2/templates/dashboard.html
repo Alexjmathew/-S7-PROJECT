@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2>Welcome, {{ user.username }}!</h2>
+        <p class="lead">Your fitness journey at a glance</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{{ url_for('training') }}" class="btn btn-primary btn-lg">Start New Session</a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Total Sessions</h5>
+                <p class="display-6">{{ sessions.counts|length }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Avg. Reps/Session</h5>
+                <p class="display-6">
+                    {% if sessions.counts %}
+                        {{ (sessions.counts|sum / sessions.counts|length)|round(1) }}
+                    {% else %}0{% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Avg. Duration</h5>
+                <p class="display-6">
+                    {% if sessions.durations %}
+                        {{ (sessions.durations|sum / sessions.durations|length / 60)|round(1) }} min
+                    {% else %}0 min{% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Recent Activity</h5>
+                <canvas id="activityChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Exercise Distribution</h5>
+                <canvas id="exerciseChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Recent Sessions</h5>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Exercise</th>
+                        <th>Reps</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for date, exercise, count, duration in sessions.dates|zip(sessions.exercises, sessions.counts, sessions.durations) %}
+                    <tr>
+                        <td>{{ date }}</td>
+                        <td>{{ exercise }}</td>
+                        <td>{{ count }}</td>
+                        <td>{{ (duration / 60)|round(1) }} min</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Activity Chart
+const activityCtx = document.getElementById('activityChart').getContext('2d');
+const activityChart = new Chart(activityCtx, {
+    type: 'line',
+    data: {
+        labels: {{ sessions.dates|tojson }},
+        datasets: [{
+            label: 'Rep Count',
+            data: {{ sessions.counts|tojson }},
+            borderColor: 'rgba(75, 192, 192, 1)',
+            tension: 0.1,
+            fill: false
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: true }
+        },
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+
+// Exercise Chart
+const exerciseCtx = document.getElementById('exerciseChart').getContext('2d');
+const exerciseChart = new Chart(exerciseCtx, {
+    type: 'pie',
+    data: {
+        labels: Array.from(new Set({{ sessions.exercises|tojson }})),
+        datasets: [{
+            data: Array.from(new Set({{ sessions.exercises|tojson }})).map(
+                ex => {{ sessions.exercises|tojson }}.filter(x => x === ex).length
+            ),
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.7)',
+                'rgba(54, 162, 235, 0.7)',
+                'rgba(255, 206, 86, 0.7)',
+                'rgba(75, 192, 192, 0.7)'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'right' }
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">User Management</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Username</th>
+                        <th>Joined</th>
+                        <th>Sessions</th>
+                        <th>Roles</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.created_at }}</td>
+                        <td>{{ user.sessions|length }}</td>
+                        <td>
+                            {% for role in user.roles %}
+                            <span class="badge bg-secondary">{{ role }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary">Edit</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

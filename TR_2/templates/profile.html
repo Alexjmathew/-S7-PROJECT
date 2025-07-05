@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Profile Information</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('profile') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" value="{{ user.email }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="age" class="form-label">Age</label>
+                        <input type="number" class="form-control" id="age" name="age" 
+                               value="{{ user.profile.age if user.profile.age else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="height" class="form-label">Height (cm)</label>
+                        <input type="number" class="form-control" id="height" name="height" 
+                               value="{{ user.profile.height if user.profile.height else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="weight" class="form-label">Weight (kg)</label>
+                        <input type="number" class="form-control" id="weight" name="weight" 
+                               value="{{ user.profile.weight if user.profile.weight else '' }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Account Statistics</h4>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Member Since
+                        <span>{{ user.created_at }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Total Sessions
+                        <span>{{ user.sessions|length }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Last Session
+                        <span>
+                            {% if user.sessions %}
+                                {{ user.sessions[-1].date }}
+                            {% else %}Never{% endif %}
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Favorite Exercise
+                        <span>
+                            {% if user.sessions %}
+                                {% set exercises = user.sessions|map(attribute='exercise')|list %}
+                                {{ mode(exercises) }}
+                            {% else %}None{% endif %}
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Training{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Exercise Monitor</h4>
+            </div>
+            <div class="card-body p-0">
+                <div class="ratio ratio-16x9">
+                    <img src="{{ url_for('video_feed') }}" class="img-fluid" id="video-feed">
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <button id="start-btn" class="btn btn-success me-2">Start Exercise</button>
+                        <button id="switch-camera" class="btn btn-secondary">Switch Camera</button>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="vocal-feedback" checked>
+                        <label class="form-check-label" for="vocal-feedback">Vocal Feedback</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Exercise Controls</h4>
+            </div>
+            <div class="card-body">
+                <form id="exercise-form">
+                    <div class="mb-3">
+                        <label for="exercise-select" class="form-label">Exercise</label>
+                        <select class="form-select" id="exercise-select" required>
+                            <option value="">Select Exercise</option>
+                            {% for name, details in exercises.items() %}
+                            <option value="{{ name }}">{{ name|title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="difficulty" class="form-label">Difficulty</label>
+                        <select class="form-select" id="difficulty">
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate" selected>Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="target-count" class="form-label">Target Reps</label>
+                        <input type="number" class="form-control" id="target-count" min="5" max="50" value="10">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Set Exercise</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Session Progress</h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <h2 id="rep-count">0</h2>
+                    <span id="target-count-display">/ 10</span>
+                </div>
+                <div class="progress mb-3" style="height: 30px;">
+                    <div id="progress-bar" class="progress-bar progress-bar-striped" 
+                         role="progressbar" style="width: 0%"></div>
+                </div>
+                <div id="feedback-message" class="alert alert-info">Ready to begin exercise!</div>
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5>Physiological Insights</h5>
+                        <p id="plateau-prediction">Loading prediction...</p>
+                        <button id="refresh-prediction" class="btn btn-sm btn-outline-primary">
+                            Refresh Prediction
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    // Exercise form submission
+    $('#exercise-form').on('submit', function(e) {
+        e.preventDefault();
+        const exercise = $('#exercise-select').val();
+        const difficulty = $('#difficulty').val();
+        const target = $('#target-count').val();
+        
+        $.post("{{ url_for('training') }}", {
+            exercise: exercise,
+            difficulty: difficulty,
+            target: target
+        }, function(data) {
+            if (data.success) {
+                $('#target-count-display').text(`/ ${target}`);
+                $('#feedback-message').removeClass('alert-danger')
+                    .addClass('alert-info')
+                    .text(`Ready to begin ${exercise}!`);
+            } else {
+                $('#feedback-message').removeClass('alert-info')
+                    .addClass('alert-danger')
+                    .text(data.error || 'Error setting exercise');
+            }
+        }).fail(function() {
+            $('#feedback-message').removeClass('alert-info')
+                .addClass('alert-danger')
+                .text('Failed to communicate with server');
+        });
+    });
+
+    // Start exercise button
+    $('#start-btn').on('click', function() {
+        $(this).prop('disabled', true);
+        $.post("{{ url_for('start_exercise') }}", function(data) {
+            if (!data.success) {
+                $('#feedback-message').removeClass('alert-info')
+                    .addClass('alert-danger')
+                    .text(data.error || 'Error starting exercise');
+                $('#start-btn').prop('disabled', false);
+            }
+        });
+    });
+
+    // Switch camera
+    $('#switch-camera').on('click', function() {
+        $.post("{{ url_for('switch_camera') }}", {
+            camera_index: $('#video-feed').attr('src').includes('camera=0') ? 1 : 0
+        }, function(data) {
+            if (data.success) {
+                $('#video-feed').attr('src', 
+                    "{{ url_for('video_feed') }}?camera=" + (data.camera_index || 0));
+            }
+        });
+    });
+
+    // Vocal feedback toggle
+    $('#vocal-feedback').on('change', function() {
+        $.post("{{ url_for('toggle_vocal_feedback') }}", {
+            enable: $(this).is(':checked')
+        });
+    });
+
+    // Refresh plateau prediction
+    $('#refresh-prediction').on('click', function() {
+        $.get("{{ url_for('get_plateau_prediction') }}", function(data) {
+            if (data.success) {
+                let msg = `Predicted to plateau in ${data.sessions_to_plateau} sessions.`;
+                msg += ` ${data.suggestion}`;
+                $('#plateau-prediction').text(msg);
+            } else {
+                $('#plateau-prediction').text(data.error || 'Prediction unavailable');
+            }
+        });
+    }).trigger('click');
+
+    // Progress updates via Server-Sent Events
+    const eventSource = new EventSource("{{ url_for('get_progress') }}");
+    eventSource.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        $('#rep-count').text(data.count);
+        $('#target-count-display').text(`/ ${data.target}`);
+        $('#progress-bar').css('width', `${(data.count / data.target) * 100}%`);
+        
+        if (data.feedback) {
+            const alertClass = data.feedback.includes('complete') ? 'alert-success' : 
+                             data.feedback.includes('Error') ? 'alert-danger' : 'alert-info';
+            $('#feedback-message').removeClass('alert-info alert-danger alert-success')
+                .addClass(alertClass)
+                .text(data.feedback);
+        }
+        
+        if (data.exercise && $('#exercise-select').val() !== data.exercise) {
+            $('#exercise-select').val(data.exercise);
+        }
+        
+        if (data.count >= data.target) {
+            $('#start-btn').prop('disabled', false);
+        }
+    };
+});
+</script>
+{% endblock %}

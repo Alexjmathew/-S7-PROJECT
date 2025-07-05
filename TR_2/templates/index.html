@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="hero-section bg-primary text-white py-5">
+    <div class="container text-center py-5">
+        <h1 class="display-4 fw-bold">AI-Powered Fitness Coaching</h1>
+        <p class="lead">Real-time exercise feedback with computer vision and physiological adaptation tracking</p>
+        {% if 'email' not in session %}
+        <div class="mt-4">
+            <a href="{{ url_for('register') }}" class="btn btn-light btn-lg px-4 me-2">Get Started</a>
+            <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg px-4">Login</a>
+        </div>
+        {% else %}
+        <div class="mt-4">
+            <a href="{{ url_for('training') }}" class="btn btn-light btn-lg px-4">Start Training</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-dumbbell fa-3x mb-3 text-primary"></i>
+                    <h3 class="card-title">Real-Time Feedback</h3>
+                    <p class="card-text">Get immediate form correction and rep counting using computer vision.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-heartbeat fa-3x mb-3 text-primary"></i>
+                    <h3 class="card-title">Fatigue Detection</h3>
+                    <p class="card-text">Our AI detects when you're pushing too hard and suggests rest.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-brain fa-3x mb-3 text-primary"></i>
+                    <h3 class="card-title">Adaptive Training</h3>
+                    <p class="card-text">The system automatically adjusts difficulty based on your performance.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+.hero-section {
+    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('{{ url_for("static", filename="images/gym-bg.jpg") }}');
+    background-size: cover;
+    background-position: center;
+    border-radius: 0 0 20px 20px;
+}
+</style>
+{% endblock %}

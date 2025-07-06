@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Exercise</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #6b7280 0%, #1e3a8a 100%);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .exercise-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .exercise-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+        }
+        .exercise-container h2 {
+            color: #1e3a8a;
+            font-weight: 700;
+            font-size: 1.875rem;
+            margin-bottom: 1.5rem;
+        }
+        .exercise-container button {
+            width: 100%;
+            padding: 0.75rem;
+            margin: 0.75rem 0;
+            background: linear-gradient(90deg, #3b82f6 0%, #1e3a8a 100%);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .exercise-container button:hover {
+            background: linear-gradient(90deg, #1e40af 0%, #1e3a8a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .error-message {
+            color: #ef4444;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: none;
+        }
+        .link-container {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        .link-container a {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: #fff;
+            background: linear-gradient(90deg, #22c55e 0%, #15803d 100%);
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .link-container a:hover {
+            background: linear-gradient(90deg, #15803d 0%, #14532d 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .exercise-container, .link-container {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="exercise-container">
+        <h2>Select Exercise</h2>
+        <form method="POST" action="/select_exercise" onsubmit="return validateExercise(event)">
+            <button type="submit" name="exercise" value="knee_raises">Knee Raises</button>
+            <button type="submit" name="exercise" value="squats">Squats</button>
+        </form>
+        <p id="error-message" class="error-message">Exercise not available</p>
+    </div>
+
+    <div class="link-container">
+        <a href="/login">Login</a>
+        <a href="/profile">Profile</a>
+    </div>
+
+    <script>
+        function validateExercise(event) {
+            const unavailableExercises = ["squats"];
+            const selectedExercise = event.submitter.value;
+
+            if (unavailableExercises.includes(selectedExercise)) {
+                document.getElementById("error-message").style.display = "block";
+                event.preventDefault();
+                return false;
+            }
+            document.getElementById("error-message").style.display = "none";
+            return true;
+        }
+    </script>
+</body>
+</html>

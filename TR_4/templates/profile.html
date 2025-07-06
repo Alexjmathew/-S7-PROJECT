@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #6b7280 0%, #1e3a8a 100%);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .profile-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+            transition: transform 0.3s ease;
+        }
+        .profile-container:hover {
+            transform: translateY(-5px);
+        }
+        h2, h3 {
+            color: #1e3a8a;
+            font-weight: 700;
+        }
+        .user-info {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .user-info p {
+            margin: 0.5rem 0;
+            font-size: 1.1rem;
+            color: #1f2937;
+        }
+        .chart-container {
+            background: #ffffff;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .chart-container:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: #fff;
+            background: linear-gradient(90deg, #3b82f6 0%, #1e3a8a 100%);
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: linear-gradient(90deg, #1e40af 0%, #1e3a8a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .prediction-container {
+            background: #ffffff;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .prediction-container:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        .prediction-container input {
+            padding: 0.75rem;
+            margin: 0.5rem;
+            width: 120px;
+            border: 2px solid #3b82f6;
+            border-radius: 0.5rem;
+            transition: border-color 0.3s ease;
+        }
+        .prediction-container input:focus {
+            outline: none;
+            border-color: #1e3a8a;
+            box-shadow: 0 0 5px rgba(30, 58, 138, 0.5);
+        }
+        .prediction-container button {
+            padding: 0.75rem 1.5rem;
+            margin: 0.5rem;
+            background: linear-gradient(90deg, #22c55e 0%, #15803d 100%);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .prediction-container button:hover {
+            background: linear-gradient(90deg, #15803d 0%, #14532d 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .prediction-result {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            color: #1f2937;
+            font-weight: 500;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .profile-container, .chart-container, .prediction-container {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <h2 class="text-3xl mb-6">Welcome, {{ user.username }}</h2>
+        <div class="user-info">
+            <p><strong>Age:</strong> {{ user.age }}</p>
+            <p><strong>Height:</strong> {{ user.height }} cm</p>
+            <p><strong>Weight:</strong> {{ user.weight }} kg</p>
+            <p><strong>Blood Group:</strong> {{ user.blood_group }}</p>
+        </div>
+
+        <div class="chart-container">
+            <h3 class="text-xl mb-4">Session Count Over Time</h3>
+            <canvas id="sessionCountChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <h3 class="text-xl mb-4">Total Time Spent Over Time</h3>
+            <canvas id="totalTimeChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <h3 class="text-xl mb-4">Average Speed Over Time</h3>
+            <canvas id="averageSpeedChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <h3 class="text-xl mb-4">Recovery Time (Actual vs Predicted)</h3>
+            <p>Model R² Score: {{ r2 | round(2) }}</p>
+            <canvas id="recoveryTimeChart"></canvas>
+        </div>
+
+        <div class="prediction-container">
+            <h3 class="text-xl mb-4">Predict Recovery Time</h3>
+            <p class="text-gray-600 mb-4">Enter hypothetical session data to predict recovery time:</p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <input type="number" id="predictCount" placeholder="Count" min="1" max="50" step="1">
+                <input type="number" id="predictAverageSpeed" placeholder="Avg Speed (s/rep)" min="0.5" max="10" step="0.1">
+                <input type="number" id="predictTotalTime" placeholder="Total Time (s)" min="1" max="300" step="0.1">
+            </div>
+            <div class="flex justify-center gap-4 mt-4">
+                <button onclick="predictRecovery()">Predict</button>
+                <button onclick="clearForm()">Clear</button>
+            </div>
+            <div class="prediction-result" id="predictionResult"></div>
+        </div>
+
+        <div class="btn-container">
+            <a href="/logout" class="btn">Logout</a>
+            <a href="/recommendations" class="btn">Recommendations</a>
+            <a href="/select_exercise" class="btn">Start</a>
+            {% if user.username == 'ALEX J MATHEW' %}
+                <a href="/admin" class="btn">Admin Page</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        const sessionDates = {{ session_dates | tojson }};
+        let predictedData = {{ predicted_recovery_times | tojson }};
+        let chartLabels = [...sessionDates];
+
+        // Session Count Chart
+        const sessionCountChart = new Chart(document.getElementById('sessionCountChart'), {
+            type: 'line',
+            data: {
+                labels: sessionDates,
+                datasets: [{
+                    label: 'Session Count',
+                    data: {{ session_counts | tojson }},
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    tooltip: { enabled: true, backgroundColor: '#1e3a8a', borderColor: '#3b82f6', borderWidth: 1 },
+                    legend: { display: true, position: 'top' }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Date', color: '#1f2937' } },
+                    y: { title: { display: true, text: 'Count', color: '#1f2937' } }
+                }
+            }
+        });
+
+        // Total Time Chart
+        const totalTimeChart = new Chart(document.getElementById('totalTimeChart'), {
+            type: 'bar',
+            data: {
+                labels: sessionDates,
+                datasets: [{
+                    label: 'Total Time (seconds)',
+                    data: {{ session_total_times | tojson }},
+                    backgroundColor: '#22c55e',
+                    borderColor: '#15803d',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    tooltip: { enabled: true, backgroundColor: '#15803d', borderColor: '#22c55e', borderWidth: 1 },
+                    legend: { display: true, position: 'top' }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Date', color: '#1f2937' } },
+                    y: { title: { display: true, text: 'Total Time (seconds)', color: '#1f2937' } }
+                }
+            }
+        });
+
+        // Average Speed Chart
+        const averageSpeedChart = new Chart(document.getElementById('averageSpeedChart'), {
+            type: 'line',
+            data: {
+                labels: sessionDates,
+                datasets: [{
+                    label: 'Average Speed (seconds/rep)',
+                    data: {{ session_average_speeds | tojson }},
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    tooltip: { enabled: true, backgroundColor: '#b91c1c', borderColor: '#ef4444', borderWidth: 1 },
+                    legend: { display: true, position: 'top' }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Date', color: '#1f2937' } },
+                    y: { title: { display: true, text: 'Average Speed (seconds/rep)', color: '#1f2937' } }
+                }
+            }
+        });
+
+        // Recovery Time Chart (Actual vs Predicted)
+        const recoveryTimeChart = new Chart(document.getElementById('recoveryTimeChart'), {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [
+                    {
+                        label: 'Actual Recovery Time (seconds)',
+                        data: {{ recovery_times | tojson }},
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Predicted Recovery Time (seconds)',
+                        data: predictedData,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        fill: true,
+                        borderDash: [5, 5]
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    tooltip: { enabled: true, backgroundColor: '#1e3a8a', borderColor: '#3b82f6', borderWidth: 1 },
+                    legend: { display: true, position: 'top' }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Date', color: '#1f2937' } },
+                    y: { title: { display: true, text: 'Recovery Time (seconds)', color: '#1f2937' } }
+                }
+            }
+        });
+
+        // Predict recovery time
+        function predictRecovery() {
+            const count = parseFloat(document.getElementById('predictCount').value);
+            const averageSpeed = parseFloat(document.getElementById('predictAverageSpeed').value);
+            const totalTime = parseFloat(document.getElementById('predictTotalTime').value);
+            const resultDiv = document.getElementById('predictionResult');
+
+            if (isNaN(count) || isNaN(averageSpeed) || isNaN(totalTime)) {
+                resultDiv.innerHTML = '<span class="text-red-500">Please enter valid numbers for all fields.</span>';
+                return;
+            }
+
+            fetch('/predict_recovery', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ count, average_speed: averageSpeed, total_time: totalTime })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        resultDiv.innerHTML = `Predicted Recovery Time: ${data.predicted_recovery_time} seconds`;
+                        if (chartLabels.includes('Predicted')) {
+                            predictedData[chartLabels.length - 1] = data.predicted_recovery_time;
+                        } else {
+                            chartLabels.push('Predicted');
+                            predictedData.push(data.predicted_recovery_time);
+                        }
+                        recoveryTimeChart.data.labels = chartLabels;
+                        recoveryTimeChart.data.datasets[1].data = predictedData;
+                        recoveryTimeChart.update();
+                    } else {
+                        resultDiv.innerHTML = `<span class="text-red-500">Error: ${data.error}</span>`;
+                    }
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = `<span class="text-red-500">Error predicting recovery time: ${error}</span>`;
+                });
+        }
+
+        // Clear prediction form
+        function clearForm() {
+            document.getElementById('predictCount').value = '';
+            document.getElementById('predictAverageSpeed').value = '';
+            document.getElementById('predictTotalTime').value = '';
+            document.getElementById('predictionResult').innerHTML = '';
+            if (chartLabels.includes('Predicted')) {
+                chartLabels.pop();
+                predictedData.pop();
+                recoveryTimeChart.data.labels = chartLabels;
+                recoveryTimeChart.data.datasets[1].data = predictedData;
+                recoveryTimeChart.update();
+            }
+        }
+    </script>
+</body>
+</html>

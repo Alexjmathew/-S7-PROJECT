@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #6b7280 0%, #1e3a8a 100%);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .leaderboard-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            transition: transform 0.3s ease;
+        }
+        .leaderboard-container:hover {
+            transform: translateY(-5px);
+        }
+        h2 {
+            color: #1e3a8a;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 0.5rem;
+        }
+        .leaderboard-table th,
+        .leaderboard-table td {
+            padding: 1rem;
+            text-align: left;
+            color: #1f2937;
+        }
+        .leaderboard-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .leaderboard-table tr {
+            background: #ffffff;
+            transition: all 0.3s ease;
+        }
+        .leaderboard-table tr:hover {
+            background: #f8fafc;
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .rank-column {
+            width: 10%;
+            text-align: center;
+            font-weight: 600;
+            color: #3b82f6;
+        }
+        .username-column {
+            width: 60%;
+        }
+        .score-column {
+            width: 30%;
+            text-align: center;
+        }
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: #fff;
+            background: linear-gradient(90deg, #3b82f6 0%, #1e3a8a 100%);
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: linear-gradient(90deg, #1e40af 0%, #1e3a8a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .leaderboard-container {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="leaderboard-container">
+        <h2 class="text-3xl">Leaderboard</h2>
+        <table class="leaderboard-table">
+            <thead>
+                <tr>
+                    <th class="rank-column">Rank</th>
+                    <th class="username-column">Username</th>
+                    <th class="score-column">Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in leaderboard %}
+                    <tr>
+                        <td class="rank-column">{{ loop.index }}</td>
+                        <td class="username-column">{{ user.username }}</td>
+                        <td class="score-column">{{ user.leaderboard_score }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="btn-container">
+            <a href="/profile" class="btn">Back to Profile</a>
+            <a href="/select_exercise" class="btn">Start Exercise</a>
+            {% if session.username == 'ALEX J MATHEW' %}
+                <a href="/admin" class="btn">Admin Page</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

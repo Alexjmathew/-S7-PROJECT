@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise Recommendations</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #6b7280 0%, #1e3a8a 100%);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+        }
+        .recommendation-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .recommendation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+        }
+        .recommendation-card h5 {
+            color: #1e3a8a;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .recommendation-card p {
+            color: #1f2937;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+        .list-group {
+            list-style: none;
+            padding: 0;
+        }
+        .list-group-item {
+            background: #f8fafc;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            color: #1f2937;
+            transition: background 0.3s ease;
+        }
+        .list-group-item:hover {
+            background: #e5e7eb;
+        }
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: #b91c1c;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            text-align: center;
+        }
+        .btn-primary {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: #fff;
+            background: linear-gradient(90deg, #3b82f6 0%, #1e3a8a 100%);
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #1e40af 0%, #1e3a8a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .recommendation-card, .alert-danger {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl text-center mb-6 text-white font-bold">Exercise Recommendations</h1>
+
+        {% if error %}
+            <div class="alert-danger">{{ error }}</div>
+        {% else %}
+            <div class="recommendation-card">
+                <h5>Hello, {{ user.username }}!</h5>
+                <p>Here are your personalized recommendations based on your recent performance:</p>
+                <ul class="list-group">
+                    {% for recommendation in recommendations %}
+                        <li class="list-group-item">{{ recommendation }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="recommendation-card">
+                <h5>Your Recent Performance</h5>
+                <p><strong>Total Reps:</strong> {{ user.sessions | sum(attribute='count') }}</p>
+                <p><strong>Average Speed:</strong> {{ user.sessions | map(attribute='average_speed') | list | mean | round(2) }} seconds per rep</p>
+                <p><strong>Last Session:</strong> {{ user.sessions[-1].count }} reps in {{ user.sessions[-1].total_time | round(2) }} seconds</p>
+            </div>
+        {% endif %}
+
+        <div class="text-center mt-4">
+            <a href="{{ url_for('profile') }}" class="btn-primary">Back to Profile</a>
+        </div>
+    </div>
+</body>
+</html>

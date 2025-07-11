@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Profile | Fitness Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6b7280 0%, #1e3a8a 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .exercise-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid #3b82f6;
+        }
+        .exercise-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div class="glass-card w-full max-w-6xl p-8 animate-fade-in">
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-indigo-900">Welcome, {{ user.username }}</h1>
+                <p class="text-gray-600">Track your fitness journey</p>
+            </div>
+            <div class="flex space-x-2 mt-4 md:mt-0">
+                <a href="/logout" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                </a>
+                <a href="/select_exercise" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                    <i class="fas fa-plus mr-2"></i>New Workout
+                </a>
+            </div>
+        </div>
+
+        <!-- User Info Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white p-4 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 bg-blue-100 rounded-full mr-4">
+                        <i class="fas fa-user text-blue-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">Age</p>
+                        <p class="text-xl font-semibold">{{ user.age }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 bg-green-100 rounded-full mr-4">
+                        <i class="fas fa-ruler-vertical text-green-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">Height</p>
+                        <p class="text-xl font-semibold">{{ user.height }} cm</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 bg-purple-100 rounded-full mr-4">
+                        <i class="fas fa-weight text-purple-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">Weight</p>
+                        <p class="text-xl font-semibold">{{ user.weight }} kg</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 bg-red-100 rounded-full mr-4">
+                        <i class="fas fa-tint text-red-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">Blood Group</p>
+                        <p class="text-xl font-semibold">{{ user.blood_group }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exercise Statistics Section -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-indigo-900 mb-4">Exercise Statistics</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for exercise in exercise_data %}
+                <div class="exercise-card bg-white p-4 rounded-lg shadow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-bold text-lg capitalize">{{ exercise.name.replace('_', ' ') }}</h3>
+                            <p class="text-gray-600 text-sm">{{ exercises[exercise.name]['description'] }}</p>
+                        </div>
+                        <div class="relative w-16 h-16">
+                            <svg class="progress-ring w-full h-full" viewBox="0 0 36 36">
+                                <circle class="progress-ring-circle"
+                                    stroke="#e6e6e6"
+                                    stroke-width="3"
+                                    fill="transparent"
+                                    r="15"
+                                    cx="18"
+                                    cy="18"/>
+                                <circle class="progress-ring-circle"
+                                    stroke="#3b82f6"
+                                    stroke-width="3"
+                                    stroke-dasharray="94.2"
+                                    stroke-dashoffset="{{ 94.2 - (exercise.accuracy * 0.942) }}"
+                                    fill="transparent"
+                                    r="15"
+                                    cx="18"
+                                    cy="18"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="font-bold text-sm">{{ exercise.accuracy|round(0) }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 grid grid-cols-3 gap-2 text-center">
+                        <div>
+                            <p class="text-gray-500 text-xs">Total</p>
+                            <p class="font-bold">{{ exercise.total_count }}</p>
+                        </div>
+                        <div>
+                            <p class="text-green-500 text-xs">Correct</p>
+                            <p class="font-bold">{{ exercise.total_correct }}</p>
+                        </div>
+                        <div>
+                            <p class="text-red-500 text-xs">Incorrect</p>
+                            <p class="font-bold">{{ exercise.total_incorrect }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Progress Charts Section -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-indigo-900 mb-4">Your Progress</h2>
+            <div class="bg-white p-6 rounded-lg shadow">
+                {% if chart_img %}
+                <img src="data:image/png;base64,{{ chart_img }}" alt="Progress Chart" class="w-full">
+                {% else %}
+                <div class="text-center py-12">
+                    <i class="fas fa-chart-line text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500">No enough data to show progress chart</p>
+                    <p class="text-sm text-gray-400">Complete at least 2 workouts to see your progress</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions Section -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="/leaderboard" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition text-center">
+                <div class="text-indigo-600 mb-2">
+                    <i class="fas fa-trophy text-3xl"></i>
+                </div>
+                <h3 class="font-bold">Leaderboard</h3>
+                <p class="text-gray-600 text-sm">See how you compare to others</p>
+            </a>
+            <a href="/progress" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition text-center">
+                <div class="text-green-600 mb-2">
+                    <i class="fas fa-chart-bar text-3xl"></i>
+                </div>
+                <h3 class="font-bold">Detailed Progress</h3>
+                <p class="text-gray-600 text-sm">View your exercise analytics</p>
+            </a>
+            <a href="/recommendations" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition text-center">
+                <div class="text-purple-600 mb-2">
+                    <i class="fas fa-lightbulb text-3xl"></i>
+                </div>
+                <h3 class="font-bold">Recommendations</h3>
+                <p class="text-gray-600 text-sm">Get personalized workout tips</p>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Initialize all progress rings
+        document.querySelectorAll('.progress-ring-circle').forEach(circle => {
+            const radius = circle.r.baseVal.value;
+            const circumference = radius * 2 * Math.PI;
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        });
+    </script>
+</body>
+</html>

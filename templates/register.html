@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Fitness Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #6b7280 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .input-field {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid #d1d5db;
+        }
+        .input-field:focus {
+            border-bottom-color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div class="glass-card w-full max-w-md p-8">
+        <div class="text-center mb-8">
+            <i class="fas fa-user-plus text-5xl text-indigo-600 mb-4"></i>
+            <h1 class="text-3xl font-bold text-indigo-900">Create Account</h1>
+            <p class="text-gray-600">Join our fitness community</p>
+        </div>
+
+        {% if error %}
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+            <p>{{ error }}</p>
+        </div>
+        {% endif %}
+
+        <form action="/register" method="POST">
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                    Username
+                </label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                        <i class="fas fa-user text-gray-400"></i>
+                    </span>
+                    <input class="input-field w-full py-2 pl-10 pr-3 bg-transparent focus:outline-none"
+                           id="username" name="username" type="text" placeholder="Your name" required>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+                    Email Address
+                </label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                        <i class="fas fa-envelope text-gray-400"></i>
+                    </span>
+                    <input class="input-field w-full py-2 pl-10 pr-3 bg-transparent focus:outline-none"
+                           id="email" name="email" type="email" placeholder="your@email.com" required>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                    Password
+                </label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                        <i class="fas fa-lock text-gray-400"></i>
+                    </span>
+                    <input class="input-field w-full py-2 pl-10 pr-3 bg-transparent focus:outline-none"
+                           id="password" name="password" type="password" placeholder="••••••••" required>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="age">
+                        Age
+                    </label>
+                    <input class="input-field w-full py-2 px-3 bg-transparent focus:outline-none"
+                           id="age" name="age" type="number" placeholder="25" min="10" max="100" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="height">
+                        Height (cm)
+                    </label>
+                    <input class="input-field w-full py-2 px-3 bg-transparent focus:outline-none"
+                           id="height" name="height" type="number" placeholder="175" min="100" max="250" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="weight">
+                        Weight (kg)
+                    </label>
+                    <input class="input-field w-full py-2 px-3 bg-transparent focus:outline-none"
+                           id="weight" name="weight" type="number" placeholder="70" min="30" max="200" required>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="blood_group">
+                    Blood Group
+                </label>
+                <select class="input-field w-full py-2 px-3 bg-transparent focus:outline-none"
+                        id="blood_group" name="blood_group" required>
+                    <option value="" disabled selected>Select your blood type</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+            </div>
+
+            <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300">
+                Register
+            </button>
+        </form>
+
+        <div class="mt-6 text-center">
+            <p class="text-gray-600">Already have an account?
+                <a href="/login" class="text-indigo-600 font-medium hover:text-indigo-500">
+                    Sign in here
+                </a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

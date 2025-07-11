@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise Details | Fitness Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .stat-card {
+            border-radius: 10px;
+            transition: all 0.3s;
+            border: none;
+            margin-bottom: 20px;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .exercise-header {
+            background-size: cover;
+            background-position: center;
+            height: 300px;
+            display: flex;
+            align-items: flex-end;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .exercise-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            border-radius: 15px;
+        }
+        .exercise-title {
+            color: white;
+            position: relative;
+            z-index: 1;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container mt-4">
+        <div class="exercise-header" style="background-image: url('/static/images/{{ exercise }}.jpg');">
+            <div class="exercise-title">
+                <h1 class="display-4 text-capitalize">{{ exercise.replace('_', ' ') }}</h1>
+                <p class="lead">{{ exercises[exercise]['description'] }}</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card stat-card bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-check-circle"></i> Total Correct</h5>
+                        <h2 class="display-4">{{ stats.total_correct }}</h2>
+                        <p class="card-text">{{ (stats.total_correct / stats.total_count * 100)|round(1) }}% accuracy</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card bg-info text-white">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-activity"></i> Total Reps</h5>
+                        <h2 class="display-4">{{ stats.total_count }}</h2>
+                        <p class="card-text">over {{ stats.sessions|length }} sessions</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card bg-warning text-dark">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-exclamation-triangle"></i> To Improve</h5>
+                        <h2 class="display-4">{{ stats.total_incorrect }}</h2>
+                        <p class="card-text">{{ (stats.total_incorrect / stats.total_count * 100)|round(1) }}% of reps</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="bi bi-graph-up"></i> Performance Over Time</h4>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="performanceChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="bi bi-trophy"></i> Personal Records</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Most reps in one session
+                                <span class="badge bg-primary rounded-pill">{{ stats.max_reps }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Best accuracy
+                                <span class="badge bg-success rounded-pill">{{ stats.best_accuracy }}%</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Current streak
+                                <span class="badge bg-info rounded-pill">{{ stats.current_streak }} days</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h4><i class="bi bi-lightbulb"></i> Tips for {{ exercise.replace('_', ' ') }}</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-success">
+                            <h5><i class="bi bi-check-circle"></i> What you're doing well:</h5>
+                            <p>Your form improves when you slow down - focus on control</p>
+                        </div>
+                        <div class="alert alert-warning">
+                            <h5><i class="bi bi-exclamation-triangle"></i> Areas to improve:</h5>
+                            <p>Try to maintain consistent speed between reps</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="bi bi-calendar"></i> Session History</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Total Reps</th>
+                                        <th>Correct</th>
+                                        <th>Incorrect</th>
+                                        <th>Accuracy</th>
+                                        <th>Duration</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for session in stats.sessions %}
+                                    <tr>
+                                        <td>{{ session.date }}</td>
+                                        <td>{{ session.count }}</td>
+                                        <td>{{ session.correct }}</td>
+                                        <td>{{ session.incorrect }}</td>
+                                        <td>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar bg-success" role="progressbar"
+                                                    style="width: {{ (session.correct / session.count * 100) }}%">
+                                                    {{ (session.correct / session.count * 100)|round(1) }}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ session.duration }} min</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'footer.html' %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Performance chart
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ stats.dates|safe }},
+                datasets: [
+                    {
+                        label: 'Total Reps',
+                        data: {{ stats.counts|safe }},
+                        borderColor: '#3e95cd',
+                        backgroundColor: '#3e95cd',
+                        fill: false
+                    },
+                    {
+                        label: 'Correct Reps',
+                        data: {{ stats.correct_counts|safe }},
+                        borderColor: '#3cba9f',
+                        backgroundColor: '#3cba9f',
+                        fill: false
+                    },
+                    {
+                        label: 'Incorrect Reps',
+                        data: {{ stats.incorrect_counts|safe }},
+                        borderColor: '#ff6384',
+                        backgroundColor: '#ff6384',
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '{{ exercise.replace("_", " ") }} Performance'
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Reps'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

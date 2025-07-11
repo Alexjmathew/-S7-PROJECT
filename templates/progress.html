@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Progress | Fitness Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .exercise-card {
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+        }
+        .exercise-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .progress-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            border-radius: 0 0 20px 20px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="progress-header text-center">
+        <div class="container">
+            <h1 class="display-4">Your Exercise Progress</h1>
+            <p class="lead">Track your improvement over time</p>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-info">
+                    <h4><i class="bi bi-graph-up"></i> How to read these charts:</h4>
+                    <ul>
+                        <li>Blue line shows your total repetitions per session</li>
+                        <li>Green line shows correctly performed repetitions</li>
+                        <li>Red line shows incorrect repetitions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {% for exercise, chart in charts.items() %}
+        <div class="row mb-5">
+            <div class="col-md-12">
+                <div class="chart-container">
+                    <h3 class="mb-4 text-capitalize">{{ exercise.replace('_', ' ') }}</h3>
+                    <img src="data:image/png;base64,{{ chart }}" class="img-fluid" alt="{{ exercise }} progress chart">
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card exercise-card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-trophy"></i> Your Best Exercise</h5>
+                        <p class="card-text">Based on your accuracy and consistency</p>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 85%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card exercise-card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-lightbulb"></i> Tips for Improvement</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Focus on form rather than speed</li>
+                            <li class="list-group-item">Try 3 sessions per week for consistency</li>
+                            <li class="list-group-item">Review the exercise instructions</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'footer.html' %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>

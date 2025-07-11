@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Exercise | Fitness Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #6b7280 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .exercise-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        .exercise-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-left-color: #3b82f6;
+        }
+        .exercise-card.selected {
+            border-left-color: #3b82f6;
+            background-color: #f0f7ff;
+        }
+        .target-input:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div class="glass-card w-full max-w-4xl p-8">
+        <div class="text-center mb-8">
+            <i class="fas fa-dumbbell text-5xl text-indigo-600 mb-4"></i>
+            <h1 class="text-3xl font-bold text-indigo-900">Select Your Exercise</h1>
+            <p class="text-gray-600">Choose an exercise and set your target</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <p style="color: red;">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('select_exercise') }}" method="POST">
+            <div class="mb-8">
+                <label for="exercise" class="block font-bold text-lg mb-4">Select Exercise</label>
+                <select name="exercise" id="exercise" class="border-2 border-gray-300 rounded-lg px-4 py-2 w-full focus:outline-none focus:border-indigo-500" required>
+                    <option value="" disabled selected>Select an exercise</option>
+                    {% for exercise in exercises %}
+                        <option value="{{ exercise }}">{{ exercise.replace('_', ' ') | capitalize }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow mb-8">
+                <h3 class="font-bold text-lg mb-4">Set Your Target</h3>
+                <div class="flex items-center">
+                    <label for="target" class="mr-4">I want to complete:</label>
+                    <input type="number" id="target" name="target" min="1" max="50"
+                           class="target-input border-2 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-indigo-500"
+                           value="10" required>
+                    <span class="ml-2">repetitions</span>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                    <i class="fas fa-play mr-2"></i>Start Workout
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

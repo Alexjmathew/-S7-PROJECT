@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Session | Fitness Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #6b7280 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+        }
+        .video-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 0.5rem;
+            transform: scaleX(-1);
+        }
+        .feedback-correct {
+            animation: pulseCorrect 2s infinite;
+        }
+        .feedback-incorrect {
+            animation: pulseIncorrect 2s infinite;
+        }
+        @keyframes pulseCorrect {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+        @keyframes pulseIncorrect {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen p-4">
+    <div class="glass-card w-full max-w-6xl mx-auto p-8">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-indigo-900 capitalize">{{ exercise.replace('_', ' ') }}</h1>
+                <p class="text-gray-600">{{ description }}</p>
+            </div>
+            <div>
+                <a href="/profile" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">
+                    <i class="fas fa-times mr-2"></i>Cancel
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Video Feed -->
+            <div class="lg:col-span-2">
+                <div class="video-container">
+                    <img src="{{ url_for('video_feed') }}" alt="Video Feed">
+                </div>
+            </div>
+
+            <!-- Stats Panel -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="text-center mb-6">
+                    <h2 class="text-xl font-bold text-indigo-900">Session Stats</h2>
+                    <p class="text-gray-600">Target: <span id="target-display">{{ target }}</span> reps</p>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4 text-center mb-6">
+                    <div class="bg-gray-100 p-4 rounded-lg">
+                        <p class="text-gray-500 text-sm">Completed</p>
+                        <p id="count-display" class="text-3xl font-bold">0</p>
+                    </div>
+                    <div class="bg-green-100 p-4 rounded-lg">
+                        <p class="text-green-600 text-sm">Correct</p>
+                        <p id="correct-display" class="text-3xl font-bold text-green-600">0</p>
+                    </div>
+                    <div class="bg-red-100 p-4 rounded-lg">
+                        <p class="text-red-600 text-sm">Incorrect</p>
+                        <p id="incorrect-display" class="text-3xl font-bold text-red-600">0</p>
+                    </div>
+                </div>
+
+                <div id="feedback-container" class="p-4 mb-6 bg-blue-50 rounded-lg text-center">
+                    <p id="feedback-message" class="text-blue-800 font-medium">Ready to begin your workout!</p>
+                </div>
+
+                <div class="flex justify-center">
+                    <button id="start-btn" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                        <i class="fas fa-play mr-2"></i>Start Exercise
+                    </button>
+                    <button id="end-btn" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition ml-4 hidden">
+                        <i class="fas fa-stop mr-2"></i>End Session
+                    </button>
+                </div>
+
+                <div class="mt-6">
+                    <h3 class="font-bold text-gray-700 mb-2">Exercise Tips</h3>
+                    <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                        <li>Maintain proper form throughout</li>
+                        <li>Breathe consistently</li>
+                        <li>Control your movements</li>
+                        <li>Listen to your body</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const countDisplay = document.getElementById('count-display');
+        const targetDisplay = document.getElementById('target-display');
+        const correctDisplay = document.getElementById('correct-display');
+        const incorrectDisplay = document.getElementById('incorrect-display');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const feedbackContainer = document.getElementById('feedback-container');
+        const startBtn = document.getElementById('start-btn');
+        const endBtn = document.getElementById('end-btn');
+        let lastSpokenMessage = '';
+
+        // Voice feedback
+        function speak(message) {
+            if (message && message !== lastSpokenMessage) {
+                const utterance = new SpeechSynthesisUtterance(message);
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                window.speechSynthesis.speak(utterance);
+                lastSpokenMessage = message;
+            }
+        }
+
+        // Update stats from server
+        function updateStats() {
+            fetch('/get_status')
+                .then(response => response.json())
+                .then(data => {
+                    countDisplay.textContent = data.count;
+                    targetDisplay.textContent = data.target;
+                    correctDisplay.textContent = data.correct;
+                    incorrectDisplay.textContent = data.incorrect;
+                    feedbackMessage.textContent = data.feedback;
+
+                    // Update feedback styling
+                    if (data.feedback.includes('Good') || data.feedback.includes('Great')) {
+                        feedbackContainer.className = 'p-4 mb-6 bg-green-100 rounded-lg text-center feedback-correct';
+                    } else if (data.feedback.includes('Adjust') || data.feedback.includes('deep')) {
+                        feedbackContainer.className = 'p-4 mb-6 bg-red-100 rounded-lg text-center feedback-incorrect';
+                    } else {
+                        feedbackContainer.className = 'p-4 mb-6 bg-blue-50 rounded-lg text-center';
+                    }
+
+                    // Voice feedback
+                    if (data.voice_message) {
+                        speak(data.voice_message);
+                    }
+
+                    // Check if target reached
+                    if (data.count >= data.target) {
+                        endBtn.click();
+                    }
+                })
+                .catch(error => console.error('Error fetching status:', error));
+        }
+
+        // Event Listeners
+        startBtn.addEventListener('click', () => {
+            fetch('/start_exercise', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        startBtn.classList.add('hidden');
+                        endBtn.classList.remove('hidden');
+                        speak('Exercise started! Let’s do this!');
+                    }
+                });
+        });
+
+        endBtn.addEventListener('click', () => {
+            fetch('/end_exercise', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        speak('Exercise completed! Great work!');
+                        setTimeout(() => {
+                            window.location.href = '/profile';
+                        }, 2000);
+                    }
+                });
+        });
+
+        // Update stats every 500ms
+        setInterval(updateStats, 500);
+    </script>
+</body>
+</html>

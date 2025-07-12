@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Training</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Training</h1>
+        <div class="form-group">
+            <label for="target">Target Reps:</label>
+            <input type="number" class="form-control" id="target" name="target">
+            <button class="btn btn-primary mt-2" onclick="setTarget()">Set Target</button>
+        </div>
+        <h3>Progress</h3>
+        <p>Count: <span id="count">0</span>/<span id="target-count">0</span></p>
+        <p>Feedback: <span id="feedback">Begin Exercise!</span></p>
+        <img src="{{ url_for('video_feed') }}" width="640">
+        <button class="btn btn-success mt-3" onclick="saveSession()">Save Session</button>
+        <a href="{{ url_for('select_exercise') }}" class="btn btn-primary mt-3">Change Exercise</a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary mt-3">Back to Dashboard</a>
+    </div>
+    <script>
+        function setTarget() {
+            var target = $('#target').val();
+            $.ajax({
+                url: '/set_target',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({target: target}),
+                success: function(response) {
+                    if (response.success) {
+                        $('#target-count').text(response.target);
+                        $('#count').text('0');
+                        $('#feedback').text('Begin Exercise!');
+                    }
+                }
+            });
+        }
+        function saveSession() {
+            $.ajax({
+                url: '/save_session',
+                type: 'POST',
+                success: function(response) {
+                    if (response.success) {
+                        alert('Session saved successfully');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + response.error);
+                    }
+                }
+            });
+        }
+        function updateCount() {
+            $.get('/get_count', function(data) {
+                $('#count').text(data.count);
+                $('#target-count').text(data.target);
+                $('#feedback').text(data.feedback);
+            });
+        }
+        setInterval(updateCount, 1000);
+    </script>
+</body>
+</html>

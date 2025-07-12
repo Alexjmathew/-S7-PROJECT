@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Profile</h1>
+        <h3>{{ user.username }}</h3>
+        <p>Email: {{ user.email }}</p>
+        <p>Age: {{ user.age }}</p>
+        <p>Height: {{ user.height }} cm</p>
+        <p>Weight: {{ user.weight }} kg</p>
+        <p>Blood Group: {{ user.blood_group }}</p>
+        <p>Gender: {{ user.gender }}</p>
+        <p>Vegetable Intake: {{ user.vegetable_intake }} (1=low, 3=high)</p>
+        <p>Frequent High-Calorie Food: {{ user.high_calorie_food }}</p>
+        <h3>Session History</h3>
+        {% if session_dates %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Count</th>
+                        <th>Total Time (s)</th>
+                        <th>Average Speed (s/rep)</th>
+                        <th>Calories Burned (kcal)</th>
+                        <th>Recovery Time (s)</th>
+                        <th>Predicted Recovery Time (s)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in range(session_dates|length) %}
+                        <tr>
+                            <td>{{ session_dates[i] }}</td>
+                            <td>{{ session_counts[i] }}</td>
+                            <td>{{ session_total_times[i]|round(2) }}</td>
+                            <td>{{ session_average_speeds[i]|round(2) }}</td>
+                            <td>{{ session_calories[i]|round(2) }}</td>
+                            <td>{{ recovery_times[i]|round(2) }}</td>
+                            <td>{{ predicted_recovery_times[i]|round(2) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p>R² Score for Recovery Prediction: {{ r2|round(2) }}</p>
+        {% else %}
+            <p>No session data available.</p>
+        {% endif %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+</body>
+</html>

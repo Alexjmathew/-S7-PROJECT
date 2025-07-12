@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Diet Plan</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Diet Plan</h1>
+        <p>Welcome, {{ user.username }}!</p>
+        <p>Estimated Daily Calorie Needs: {{ daily_calories|round(2) }} kcal</p>
+        <h3>Sample Daily Diet Plan</h3>
+        <ul>
+            {% for meal, description in diet_plan.items() %}
+                <li><strong>{{ meal|capitalize }}:</strong> {{ description }}</li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+</body>
+</html>

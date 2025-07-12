@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Exercise</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Select Exercise</h1>
+        <form method="POST">
+            <div class="form-group">
+                <label for="exercise">Exercise:</label>
+                <select class="form-control" id="exercise" name="exercise">
+                    <option value="knee_raises">Knee Raises</option>
+                    <option value="squats">Squats</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Select</button>
+        </form>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+</body>
+</html>

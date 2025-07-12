@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calorie Tracker</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Calorie Tracker</h1>
+        <p>Welcome, {{ user.username }}!</p>
+        <p>Total Calories Burned: {{ total_calories_burned|round(2) }} kcal</p>
+        <p>Calorie Balance: {{ calorie_balance|round(2) }} kcal</p>
+        <h3>Update Weight and Diet</h3>
+        <form method="POST">
+            <div class="form-group">
+                <label for="weight">Weight (kg):</label>
+                <input type="number" class="form-control" id="weight" name="weight" step="0.1" required>
+            </div>
+            <div class="form-group">
+                <label for="calories_consumed">Calories Consumed (kcal):</label>
+                <input type="number" class="form-control" id="calories_consumed" name="calories_consumed" step="0.1">
+            </div>
+            <div class="form-group">
+                <label for="vegetable_intake">Vegetable Intake (1-3, 3=high):</label>
+                <input type="number" class="form-control" id="vegetable_intake" name="vegetable_intake" min="1" max="3" value="{{ user.vegetable_intake|default(2) }}">
+            </div>
+            <div class="form-group">
+                <label for="high_calorie_food">Frequent High-Calorie Food:</label>
+                <select class="form-control" id="high_calorie_food" name="high_calorie_food">
+                    <option value="no" {% if user.high_calorie_food == 'no' %}selected{% endif %}>No</option>
+                    <option value="yes" {% if user.high_calorie_food == 'yes' %}selected{% endif %}>Yes</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+        <h3>Weight History</h3>
+        {% if user.weight_history %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Weight (kg)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in user.weight_history %}
+                        <tr>
+                            <td>{{ entry.date }}</td>
+                            <td>{{ entry.weight|round(2) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No weight history available.</p>
+        {% endif %}
+        <h3>Daily Calories</h3>
+        {% if user.daily_calories %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Calories Consumed (kcal)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in user.daily_calories %}
+                        <tr>
+                            <td>{{ entry.date }}</td>
+                            <td>{{ entry.calories_consumed|round(2) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No calorie data available.</p>
+        {% endif %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+</body>
+</html>

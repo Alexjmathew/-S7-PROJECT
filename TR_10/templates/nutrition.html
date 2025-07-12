@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nutrition AI</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Nutrition AI Recommendations</h1>
+        <p>Welcome, {{ user.username }}!</p>
+        <p>Total Calories Burned: {{ total_calories|round(2) }} kcal</p>
+        <h3>Your Personalized Recommendation:</h3>
+        <ul>
+            {% for recommendation in recommendations %}
+                <li>{{ recommendation }}</li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+</body>
+</html>

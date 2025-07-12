@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Admin Panel</h1>
+        <p>Current Time: {{ now }}</p>
+        <h3>Users</h3>
+        {% for user in users %}
+            <h4>{{ user.username }} ({{ user.email }})</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Exercise</th>
+                        <th>Count</th>
+                        <th>Total Time (s)</th>
+                        <th>Average Speed (s/rep)</th>
+                        <th>Calories Burned (kcal)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if user.sessions %}
+                        {% for i, session in enumerate(user.sessions) %}
+                            <tr>
+                                <td><input type="text" class="form-control" value="{{ session.date }}" id="date-{{ user.email }}-{{ i }}"></td>
+                                <td><input type="text" class="form-control" value="{{ session.exercise }}" id="exercise-{{ user.email }}-{{ i }}"></td>
+                                <td><input type="number" class="form-control" value="{{ session.count }}" id="count-{{ user.email }}-{{ i }}"></td>
+                                <td><input type="number" class="form-control" value="{{ session.total_time }}" id="total_time-{{ user.email }}-{{ i }}"></td>
+                                <td>{{ session.average_speed|round(2) }}</td>
+                                <td>{{ session.calories_burned|round(2) }}</td>
+                                <td>
+                                    <button class="btn btn-primary" onclick="updateSession('{{ user.email }}', {{ i }})">Update</button>
+                                    <button class="btn btn-danger" onclick="deleteSession('{{ user.email }}', {{ i }})">Delete</button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="7">No sessions</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            <h5>Add New Session</h5>
+            <form id="add-session-{{ user.email }}">
+                <div class="form-group">
+                    <label>Date:</label>
+                    <input type="text" class="form-control" name="date" placeholder="YYYY-MM-DD HH:MM:SS">
+                </div>
+                <div class="form-group">
+                    <label>Exercise:</label>
+                    <input type="text" class="form-control" name="exercise">
+                </div>
+                <div class="form-group">
+                    <label>Count:</label>
+                    <input type="number" class="form-control" name="count">
+                </div>
+                <div class="form-group">
+                    <label>Total Time (s):</label>
+                    <input type="number" class="form-control" name="total_time">
+                </div>
+                <button type="button" class="btn btn-success" onclick="addSession('{{ user.email }}')">Add Session</button>
+            </form>
+        {% endfor %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+    <script>
+        function updateSession(email, index) {
+            $.ajax({
+                url: '/admin/update_session',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    email: email,
+                    session_index: index,
+                    date: $('#date-' + email + '-' + index).val(),
+                    exercise: $('#exercise-' + email + '-' + index).val(),
+                    count: parseInt($('#count-' + email + '-' + index).val()),
+                    total_time: parseFloat($('#total_time-' + email + '-' + index).val())
+                }),
+                success: function(response) {
+                    if (response.success) {
+                        alert('Session updated successfully');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + response.error);
+                    }
+                }
+            });
+        }
+        function deleteSession(email, index) {
+            if (confirm('Are you sure you want to delete this session?')) {
+                $.ajax({
+                    url: '/admin/delete_session',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({email: email, session_index: index}),
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Session deleted successfully');
+                            location.reload();
+                        } else {
+                            alert('Error: ' + response.error);
+                        }
+                    }
+                });
+            }
+        }
+        function addSession(email) {
+            var form = $('#add-session-' + email).serializeArray();
+            var data = {email: email};
+            form.forEach(function(item) { data[item.name] = item.value; });
+            $.ajax({
+                url: '/admin/add_session',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(response) {
+                    if (response.success) {
+                        alert('Session added successfully');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + response.error);
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

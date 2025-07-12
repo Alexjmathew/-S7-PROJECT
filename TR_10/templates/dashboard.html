@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Welcome, {{ user.username }}!</h1>
+        <p>Email: {{ user.email }}</p>
+        <p>Total Calories Burned: {{ total_calories|round(2) }} kcal</p>
+        <h3>Recent Sessions</h3>
+        {% if sessions %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Exercise</th>
+                        <th>Count</th>
+                        <th>Total Time (s)</th>
+                        <th>Average Speed (s/rep)</th>
+                        <th>Calories Burned (kcal)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for session in sessions %}
+                        <tr>
+                            <td>{{ session.date }}</td>
+                            <td>{{ session.exercise }}</td>
+                            <td>{{ session.count }}</td>
+                            <td>{{ session.total_time|round(2) }}</td>
+                            <td>{{ session.average_speed|round(2) }}</td>
+                            <td>{{ session.calories_burned|round(2) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No sessions recorded yet.</p>
+        {% endif %}
+        <a href="{{ url_for('select_exercise') }}" class="btn btn-primary">Start Exercise</a>
+        <a href="{{ url_for('profile') }}" class="btn btn-secondary">Profile</a>
+        <a href="{{ url_for('leaderboard') }}" class="btn btn-secondary">Leaderboard</a>
+        <a href="{{ url_for('nutrition') }}" class="btn btn-secondary">Nutrition</a>
+        <a href="{{ url_for('calorie_tracker') }}" class="btn btn-secondary">Calorie Tracker</a>
+        <a href="{{ url_for('diet_plan') }}" class="btn btn-secondary">Diet Plan</a>
+        <a href="{{ url_for('recommendations') }}" class="btn btn-secondary">Recommendations</a>
+        {% if user.username == 'ALEX J MATHEW' %}
+            <a href="{{ url_for('admin') }}" class="btn btn-warning">Admin Panel</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+    </div>
+</body>
+</html>

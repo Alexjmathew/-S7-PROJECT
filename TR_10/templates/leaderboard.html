@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leaderboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Leaderboard</h1>
+        {% if leaderboard %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Username</th>
+                        <th>Total Calories Burned (kcal)</th>
+                        <th>Total Reps</th>
+                        <th>Session Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i, entry in enumerate(leaderboard) %}
+                        <tr>
+                            <td>{{ i + 1 }}</td>
+                            <td>{{ entry.username }}</td>
+                            <td>{{ entry.total_calories|round(2) }}</td>
+                            <td>{{ entry.total_reps }}</td>
+                            <td>{{ entry.session_count }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No leaderboard data available.</p>
+        {% endif %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+</body>
+</html>

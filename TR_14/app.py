@@ -590,7 +590,8 @@ def select_exercise():
             "joints": ["LEFT_HIP", "LEFT_KNEE", "LEFT_ANKLE"],
             "target_angle": 60,
             "threshold": 15,
-            "optimal_speed_range": (1.0, 2.5)
+            "optimal_speed_range": (1.0, 2.5),
+            "image": "knee_raises.png"
         },
         "squats": {
             "name": "Squats",
@@ -598,7 +599,8 @@ def select_exercise():
             "joints": ["LEFT_HIP", "LEFT_KNEE", "LEFT_ANKLE"],
             "target_angle": 90,
             "threshold": 15,
-            "optimal_speed_range": (2.0, 4.0)
+            "optimal_speed_range": (2.0, 4.0),
+            "image": "squats.png"
         },
         "pushups": {
             "name": "Pushups",
@@ -606,7 +608,8 @@ def select_exercise():
             "joints": ["LEFT_SHOULDER", "LEFT_ELBOW", "LEFT_WRIST"],
             "target_angle": 90,
             "threshold": 15,
-            "optimal_speed_range": (1.5, 3.0)
+            "optimal_speed_range": (1.5, 3.0),
+            "image": "pushups.png"
         }
     }
     
@@ -614,9 +617,11 @@ def select_exercise():
         exercise_name = request.form['exercise']
         if exercise_name in exercises:
             exercise = exercises[exercise_name]
+            session['exercise_name'] = exercise["name"]
+            session['exercise_image'] = exercise["image"]
             return redirect(url_for('training'))
         else:
-            return render_template('select_exercise.html', error="Invalid exercise selected")
+            return render_template('select_exercise.html', error="Invalid exercise selected", exercises=exercises.values())
     
     return render_template('select_exercise.html', exercises=exercises.values())
 
@@ -624,6 +629,8 @@ def select_exercise():
 def training():
     if 'email' not in session:
         return redirect(url_for('login'))
+    if not exercise:
+        return redirect(url_for('select_exercise'))
     return render_template('training.html')
 
 @app.route('/video_feed')

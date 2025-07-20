@@ -1,69 +1,241 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Profile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Fitness App</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+        .profile-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            margin: auto;
+            text-align: center;
+        }
+        h2, h3 {
+            color: #333;
+        }
+        .user-info p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+        .badges {
+            margin: 10px 0;
+            font-size: 16px;
+            color: #555;
+        }
+        .chart-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+            cursor: pointer;
+        }
+        th:hover {
+            background-color: #e0e0e0;
+        }
+        .btn-container {
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 10px 15px;
+            margin: 5px;
+            text-decoration: none;
+            color: #fff;
+            background-color: #007bff;
+            border-radius: 5px;
+            display: inline-block;
+            transition: background 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h2>Welcome, {{ user.username }}</h2>
-    <p>Email: {{ user.email }}</p>
-    <p>Age: {{ user.age }}</p>
-    <p>Height: {{ user.height }} cm</p>
-    <p>Weight: {{ user.weight }} kg</p>
-    <p>Blood Group: {{ user.blood_group }}</p>
-    <p>Badges: {{ user.badges|join(', ') if user.badges else 'None' }}</p>
-    <h3>Workout History</h3>
-    {% if sessions %}
-        <table border="1" id="sessionTable">
-            <thead>
-                <tr>
-                    <th onclick="sortTable(0)">Date</th>
-                    <th onclick="sortTable(1)">Exercise</th>
-                    <th onclick="sortTable(2)">Reps</th>
-                    <th onclick="sortTable(3)">Time (s)</th>
-                    <th onclick="sortTable(4)">Avg Speed (s/rep)</th>
-                    <th onclick="sortTable(5)">Calories</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for session in sessions %}
+    <div class="profile-container">
+        <h2>Welcome, {{ user.username }}</h2>
+        <div class="user-info">
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Age:</strong> {{ user.age }}</p>
+            <p><strong>Height:</strong> {{ user.height }} cm</p>
+            <p><strong>Weight:</strong> {{ user.weight }} kg</p>
+            <p><strong>Blood Group:</strong> {{ user.blood_group }}</p>
+            <p class="badges"><strong>Badges:</strong> {{ user.badges|join(', ') if user.badges else 'None' }}</p>
+        </div>
+
+        <h3>Workout History</h3>
+        {% if sessions %}
+            <table id="sessionTable">
+                <thead>
                     <tr>
-                        <td>{{ session.date }}</td>
-                        <td>{{ session.exercise }}</td>
-                        <td>{{ session.count }}</td>
-                        <td>{{ session.total_time }}</td>
-                        <td>{{ session.average_speed }}</td>
-                        <td>{{ session.calories }}</td>
+                        <th onclick="sortTable(0)">Date</th>
+                        <th onclick="sortTable(1)">Exercise</th>
+                        <th onclick="sortTable(2)">Reps</th>
+                        <th onclick="sortTable(3)">Time (s)</th>
+                        <th onclick="sortTable(4)">Avg Speed (s/rep)</th>
+                        <th onclick="sortTable(5)">Calories</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>No sessions recorded.</p>
-    {% endif %}
-    <a href="{{ url_for('edit_profile') }}">Edit Profile</a> |
-    <a href="{{ url_for('manual_log') }}">Log Workout Manually</a> |
-    <a href="{{ url_for('export_sessions') }}">Export Sessions as CSV</a> |
-    <a href="{{ url_for('leaderboard') }}">View Leaderboard</a> |
-    <a href="{{ url_for('select_exercise') }}">Start Workout</a> |
-    <a href="{{ url_for('recommendations') }}">View Recommendations</a> |
-    <a href="{{ url_for('logout') }}">Logout</a>
-    {% if user.username == 'ALEX J MATHEW' %}
-        | <a href="{{ url_for('admin') }}">Admin Dashboard</a>
-    {% endif %}
+                </thead>
+                <tbody>
+                    {% for session in sessions %}
+                        <tr>
+                            <td>{{ session.date }}</td>
+                            <td>{{ session.exercise }}</td>
+                            <td>{{ session.count }}</td>
+                            <td>{{ session.total_time|round(2) }}</td>
+                            <td>{{ session.average_speed|round(2) }}</td>
+                            <td>{{ session.calories|round(2) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No sessions recorded.</p>
+        {% endif %}
+
+        <div class="chart-container">
+            <h3>Session Count Over Time</h3>
+            <canvas id="sessionCountChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <h3>Total Time Spent Over Time</h3>
+            <canvas id="totalTimeChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <h3>Average Speed Over Time</h3>
+            <canvas id="averageSpeedChart"></canvas>
+        </div>
+
+        <div class="btn-container">
+            <a href="{{ url_for('edit_profile') }}" class="btn">Edit Profile</a>
+            <a href="{{ url_for('manual_log') }}" class="btn">Log Workout Manually</a>
+            <a href="{{ url_for('export_sessions') }}" class="btn">Export Sessions as CSV</a>
+            <a href="{{ url_for('leaderboard') }}" class="btn">View Leaderboard</a>
+            <a href="{{ url_for('select_exercise') }}" class="btn">Start Workout</a>
+            <a href="{{ url_for('recommendations') }}" class="btn">Recommendations</a>
+            <a href="{{ url_for('logout') }}" class="btn">Logout</a>
+            {% if user.username == 'ALEX J MATHEW' %}
+                <a href="{{ url_for('admin') }}" class="btn">Admin Dashboard</a>
+            {% endif %}
+        </div>
+    </div>
+
     <script>
+        const sessionDates = {{ session_dates | tojson }};
+        const sessionCounts = {{ session_counts | tojson }};
+        const sessionTotalTimes = {{ session_total_times | tojson }};
+        const sessionAverageSpeeds = {{ session_average_speeds | tojson }};
+
+        // Session Count Chart (Line)
+        new Chart(document.getElementById('sessionCountChart'), {
+            type: 'line',
+            data: {
+                labels: sessionDates,
+                datasets: [{
+                    label: 'Session Count',
+                    data: sessionCounts,
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Date' } },
+                    y: { title: { display: true, text: 'Reps' }, beginAtZero: true }
+                }
+            }
+        });
+
+        // Total Time Chart (Bar)
+        new Chart(document.getElementById('totalTimeChart'), {
+            type: 'bar',
+            data: {
+                labels: sessionDates,
+                datasets: [{
+                    label: 'Total Time (seconds)',
+                    data: sessionTotalTimes,
+                    backgroundColor: '#28a745',
+                    borderColor: '#218838',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Date' } },
+                    y: { title: { display: true, text: 'Total Time (seconds)' }, beginAtZero: true }
+                }
+            }
+        });
+
+        // Average Speed Chart (Line)
+        new Chart(document.getElementById('averageSpeedChart'), {
+            type: 'line',
+            data: {
+                labels: sessionDates,
+                datasets: [{
+                    label: 'Average Speed (seconds/rep)',
+                    data: sessionAverageSpeeds,
+                    borderColor: '#dc3545',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Date' } },
+                    y: { title: { display: true, text: 'Average Speed (seconds/rep)' }, beginAtZero: true }
+                }
+            }
+        });
+
+        // Table sorting function
         function sortTable(n) {
-            var table, rows, switching = true, i, x, y, shouldSwitch, dir = "asc", switchcount = 0;
-            table = document.getElementById("sessionTable");
+            let table = document.getElementById("sessionTable");
+            let switching = true, rows, i, shouldSwitch, dir = "asc", switchcount = 0;
             while (switching) {
                 switching = false;
                 rows = table.rows;
                 for (i = 1; i < (rows.length - 1); i++) {
                     shouldSwitch = false;
-                    x = rows[i].getElementsByTagName("TD")[n];
-                    y = rows[i + 1].getElementsByTagName("TD")[n];
-                    var xVal = isNaN(x.innerHTML) ? x.innerHTML.toLowerCase() : parseFloat(x.innerHTML);
-                    var yVal = isNaN(y.innerHTML) ? y.innerHTML.toLowerCase() : parseFloat(y.innerHTML);
+                    let x = rows[i].getElementsByTagName("TD")[n];
+                    let y = rows[i + 1].getElementsByTagName("TD")[n];
+                    let xVal = isNaN(x.innerHTML) ? x.innerHTML.toLowerCase() : parseFloat(x.innerHTML);
+                    let yVal = isNaN(y.innerHTML) ? y.innerHTML.toLowerCase() : parseFloat(y.innerHTML);
                     if (dir == "asc") {
                         if (xVal > yVal) {
                             shouldSwitch = true;

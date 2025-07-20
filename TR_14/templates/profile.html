@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h2>Welcome, {{ user.username }}</h2>
+    <p>Email: {{ user.email }}</p>
+    <p>Age: {{ user.age }}</p>
+    <p>Height: {{ user.height }} cm</p>
+    <p>Weight: {{ user.weight }} kg</p>
+    <p>Blood Group: {{ user.blood_group }}</p>
+    <p>Badges: {{ user.badges|join(', ') if user.badges else 'None' }}</p>
+    <h3>Workout History</h3>
+    {% if sessions %}
+        <table border="1" id="sessionTable">
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0)">Date</th>
+                    <th onclick="sortTable(1)">Exercise</th>
+                    <th onclick="sortTable(2)">Reps</th>
+                    <th onclick="sortTable(3)">Time (s)</th>
+                    <th onclick="sortTable(4)">Avg Speed (s/rep)</th>
+                    <th onclick="sortTable(5)">Calories</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for session in sessions %}
+                    <tr>
+                        <td>{{ session.date }}</td>
+                        <td>{{ session.exercise }}</td>
+                        <td>{{ session.count }}</td>
+                        <td>{{ session.total_time }}</td>
+                        <td>{{ session.average_speed }}</td>
+                        <td>{{ session.calories }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No sessions recorded.</p>
+    {% endif %}
+    <a href="{{ url_for('edit_profile') }}">Edit Profile</a> |
+    <a href="{{ url_for('manual_log') }}">Log Workout Manually</a> |
+    <a href="{{ url_for('export_sessions') }}">Export Sessions as CSV</a> |
+    <a href="{{ url_for('leaderboard') }}">View Leaderboard</a> |
+    <a href="{{ url_for('select_exercise') }}">Start Workout</a> |
+    <a href="{{ url_for('recommendations') }}">View Recommendations</a> |
+    <a href="{{ url_for('logout') }}">Logout</a>
+    {% if user.username == 'ALEX J MATHEW' %}
+        | <a href="{{ url_for('admin') }}">Admin Dashboard</a>
+    {% endif %}
+    <script>
+        function sortTable(n) {
+            var table, rows, switching = true, i, x, y, shouldSwitch, dir = "asc", switchcount = 0;
+            table = document.getElementById("sessionTable");
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    var xVal = isNaN(x.innerHTML) ? x.innerHTML.toLowerCase() : parseFloat(x.innerHTML);
+                    var yVal = isNaN(y.innerHTML) ? y.innerHTML.toLowerCase() : parseFloat(y.innerHTML);
+                    if (dir == "asc") {
+                        if (xVal > yVal) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (xVal < yVal) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount++;
+                } else if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    </script>
+</body>
+</html>

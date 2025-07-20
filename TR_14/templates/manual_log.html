@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manual Log Entry</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h2>Log Workout Manually</h2>
+    <form method="POST" action="{{ url_for('manual_log') }}">
+        <label for="date">Date (YYYY-MM-DD HH:MM:SS):</label>
+        <input type="text" id="date" name="date" required>
+        <label for="count">Reps:</label>
+        <input type="number" id="count" name="count" required>
+        <label for="total_time">Total Time (seconds):</label>
+        <input type="number" id="total_time" name="total_time" required>
+        <label for="exercise">Exercise:</label>
+        <select id="exercise" name="exercise">
+            <option value="knee_raises">Knee Raises</option>
+            <option value="squats">Squats</option>
+            <option value="pushups">Pushups</option>
+            <option value="lunges">Lunges</option>
+            <option value="plank">Plank</option>
+            <option value="sit-ups">Sit-ups</option>
+            <option value="jumping_jacks">Jumping Jacks</option>
+            <option value="bicep_curls">Bicep Curls</option>
+            <option value="shoulder_press">Shoulder Press</option>
+        </select>
+        <button type="submit">Log Session</button>
+    </form>
+    <a href="{{ url_for('profile') }}">Back to Profile</a>
+</body>
+</html>

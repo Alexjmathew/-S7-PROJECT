@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Exercise</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h2>Select Exercise</h2>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    <form method="POST" action="{{ url_for('select_exercise') }}">
+        <label for="exercise">Exercise:</label>
+        <select id="exercise" name="exercise">
+            {% for ex in exercises %}
+                <option value="{{ ex.name|lower|replace(' ', '_') }}">{{ ex.name }}: {{ ex.description }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Select</button>
+    </form>
+    <a href="{{ url_for('profile') }}">Back to Profile</a>
+</body>
+</html>
